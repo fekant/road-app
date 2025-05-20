@@ -1,27 +1,2 @@
-# Python virtual environments
-venv/
-env/
-.venv/
-
-# Python cache files
-__pycache__/
 *.pyc
-*.pyo
-*.pyd
-
-# Temporary files
-*.log
-*.cache
-*.tmp
-
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# macOS-specific files
-.DS_Store
-
-# Streamlit-specific
-.streamlit/cache/
+__pycache__/
