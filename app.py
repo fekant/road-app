@@ -29,9 +29,18 @@ classes = {
 # ---------------------- LOAD MODEL ----------------------
 @st.cache_resource
 def load_cnn_model():
-    return load_model("traffic_classifier.h5")
+    if not os.path.exists(MODEL_PATH):
+        st.error(f"Model file not found at {MODEL_PATH}")
+        return None
+    try:
+        return load_model(MODEL_PATH)
+    except Exception as e:
+        st.error(f"Error loading model: {str(e)}")
+        return None
 
 model = load_cnn_model()
+if model is None:
+    st.stop()
 
 # ---------------------- IMAGE CLASSIFICATION ----------------------
 def classify_image(img):
