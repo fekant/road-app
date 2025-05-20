@@ -1,20 +1,30 @@
 import streamlit as st
-from tensorflow.keras.models import load_model
-from PIL import Image
 import numpy as np
+from PIL import Image
+import tensorflow.lite as tflite
+
+st.title("Traffic Sign Classifier (.tflite)")
 
 @st.cache_resource
-def load_model_file():
-    return load_model("traffic_classifier.h5")
+def load_tflite_model():
+    interpreter = tflite.Interpreter(model_path="traffic_classifier.tflite")
+    interpreter.allocate_tensors()
+    return interpreter
 
-model = load_model_file()
+def predict_image(interpreter, image):
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    interpreter.set_tensor(input_details[0]['index'], image)
+    interpreter.invoke()
+    output = interpreter.get_tensor(output_details[0]['index'])
+    return np.argmax(output)
 
-st.title("Traffic Sign Classifier")
+interpreter = load_tflite_model()
 
 uploaded_file = st.file_uploader("Upload a traffic sign image", type=["png", "jpg", "jpeg"])
 if uploaded_file:
-    img = Image.open(uploaded_file).resize((30, 30))
-    st.image(img, caption="Input Image", use_column_width=True)
-    img_array = np.expand_dims(np.array(img), axis=0)
-    prediction = np.argmax(model.predict(img_array))
+    image = Image.open(uploaded_file).resize((30, 30))
+    st.image(image, caption="Uploaded Image", use_column_width=True)
+    img_array = np.expand_dims(np.array(image), axis=0).astype(np.float32)
+    prediction = predict_image(interpreter, img_array)
     st.success(f"Predicted Class ID: {prediction}")
